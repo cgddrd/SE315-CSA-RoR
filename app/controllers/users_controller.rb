@@ -4,7 +4,8 @@ class UsersController < ApplicationController
 
   force_ssl except: [:destroy]
 
-  before_action :admin_required, only: [:index, :search, :destroy]
+  # CG - Ensure only Admins can create new users.
+  before_action :admin_required, only: [:index, :search, :destroy, :create]
   before_action :set_current_page, except: [:index]
   before_action :set_user, only: [:show, :edit, :update, :destroy]
 
@@ -86,6 +87,8 @@ class UsersController < ApplicationController
   # POST /users.json
   # At the moment we are only allowing the admin user to create new
   # accounts.
+    
+  # CG - Above line wasn't ACTUALLY correct, until I put the check in at the top of the file.
   def create
       
     # CG - Mass assign incoming form data to new object that will be stored in the database.
@@ -106,7 +109,11 @@ class UsersController < ApplicationController
         format.json { render action: 'show', status: :created, location: @user }
       else
         format.html { render action: 'new' }
-        format.json { render json: @user.errors, status: :unprocessable_entity }
+          
+        #format.json { render json: @user.errors, status: :unprocessable_entity }
+        
+        # CG - Changed from 422 to 400 Bad Request - Validation error. 
+        format.json { render json: @user.errors, status: :bad_request }
       end
     end
   end
@@ -233,7 +240,7 @@ class UsersController < ApplicationController
 # Never trust parameters from the scary internet, only allow the white list through.
 
 # CG - This private method is used to specify what data can be passed in from the 'params' hash-table.
-# CG - '.require()' tells Rails that the 'params' hash-table MUST include the user ID, or it should be rejected.
+# CG - '.require()' tells Rails that the 'params' hash-table MUST include a 'user' key. It must exist. 
 
   def user_params
     params.require(:user).permit(:surname,
