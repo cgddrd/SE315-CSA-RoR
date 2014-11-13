@@ -47,6 +47,9 @@ class UsersController < ApplicationController
   # GET /users/1.json
   # Can be called either by an admin to show any user account or else by
   # a specific user to show their own account, but no one else's
+  
+  # CG - Rails goes to views/users/show.html.erb
+  
   def show
     if current_user.id == @user.id || is_admin?
       respond_to do |format|
@@ -56,9 +59,11 @@ class UsersController < ApplicationController
                            layout: false }
         format.html # show.html.erb
         format.json # show.json.builder
+        format.xml  { render :xml => @user.to_xml }
       end
     else
-      indicate_illegal_request I18n.t('users.not-your-account')
+      #indicate_illegal_request I18n.t('users.not-your-account')
+      indicate_unauthorised_request I18n.t('users.not-your-account')
     end
   end
 
@@ -82,6 +87,8 @@ class UsersController < ApplicationController
   # At the moment we are only allowing the admin user to create new
   # accounts.
   def create
+      
+    # CG - Mass assign incoming form data to new object that will be stored in the database.
     @user = User.new(user_params)
 
     # Only create a new image if the :image_file parameter
@@ -171,6 +178,42 @@ class UsersController < ApplicationController
       }
     end
   end
+    
+  #CG - Add 401-Unauthorized status.
+    def indicate_unauthorised_request(message)
+        respond_to do |format|
+              format.html {
+                flash[:error] = message
+                redirect_back_or_default(home_url)
+              }
+              format.json {
+                render json: "{#{message}}",
+                       status: :unauthorized
+              }
+        end
+    end
+
+# CG - Maybe we should return a 401 instead of 404 if the user logged in isn't the user trying to access (even if it doesn't exist)    
+# def show_record_not_found(exception)
+#      
+#    if current_user.id == params[:id] || is_admin?
+#        
+#        respond_to do |format|
+#          format.html {
+#            redirect_to(users_url(page: @current_page),
+#                        notice: I18n.t('users.account-no-exists'))
+#          }
+#          format.json {
+#            render json: "{#{I18n.t('users.account-no-exists')}}",
+#
+#                   # CG - Changed from 422 to 401
+#                   status: :not_found
+#          }
+#        end
+#      else 
+#          indicate_unauthorised_request I18n.t('users.not-your-account')
+#      end
+#  end
 
   def show_record_not_found(exception)
     respond_to do |format|
@@ -180,14 +223,26 @@ class UsersController < ApplicationController
       }
       format.json {
         render json: "{#{I18n.t('users.account-no-exists')}}",
-               status: :unprocessable_entity
+
+               # CG - Changed from 422 to 401
+               status: :not_found
       }
     end
   end
 
 # Never trust parameters from the scary internet, only allow the white list through.
+
+# CG - This private method is used to specify what data can be passed in from the 'params' hash-table.
+# CG - '.require()' tells Rails that the 'params' hash-table MUST include the user ID, or it should be rejected.
+
   def user_params
-    params.require(:user).permit(:surname, :firstname, :phone, :grad_year, :jobs, :email, user_detail_attributes: [:id, :password, :password_confirmation, :login])
+    params.require(:user).permit(:surname,
+                                 :firstname,
+                                 :phone,
+                                 :grad_year,
+                                 :jobs,
+                                 :email,
+                                 user_detail_attributes: [:id, :password, :password_confirmation, :login])
   end
 
 end

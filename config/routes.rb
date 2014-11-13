@@ -1,5 +1,6 @@
 Csa::Application.routes.draw do
-
+  
+  # CG - Generates all of the REST URL routes for the CSA application. Enables both web browsers and web services to interact with the application in a RESTful manner.
   resources :users do
     get 'search', on: :collection
   end
