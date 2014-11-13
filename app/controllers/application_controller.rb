@@ -89,10 +89,16 @@ class ApplicationController < ActionController::Base
 
   def admin_denied
     respond_to do |format|
-      format.html do
+      format.html {
         flash[:error] = 'You must be admin to do that'
         redirect_to root_url
-      end
+      }
+      
+      # CG - Add 401 error code if user other than admin attempts to perform 'index', 'search' or 'destroy' controller methods. 
+      format.json {
+                render json: "{You must be admin to do that}",
+                       status: :unauthorized
+              }
     end
   end
 
