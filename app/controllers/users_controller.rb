@@ -39,9 +39,22 @@ class UsersController < ApplicationController
   # GET /users
   # GET /users.json
   def index
-    @users = User.paginate(page: params[:page],
-                           per_page: params[:per_page])
-                 .order('surname, firstname')
+    respond_to do |format|
+        
+        format.html {
+            @users = User.paginate(page: params[:page],
+                               per_page: params[:per_page])
+                     .order('surname, firstname')
+        }
+        
+        # CG - Add JSON formatter to list all users if accesing via web service, rather than using pagination. 
+        format.json {
+            
+            # CG - Get all the users from the model/DB.
+            @users = User.all
+            render json: @users
+        }
+    end
   end
 
   # GET /users/1
