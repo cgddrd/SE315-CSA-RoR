@@ -1,0 +1,6 @@
+one:
+  id: 980190962
+  login: admin
+  salt: 21613652800.8890977334258171
+  crypted_password: ced6c1da3e5436a7816d428910172927e0ac0fbaeb0b7454fb0a0372dceb3502
+  user_id: 980190962

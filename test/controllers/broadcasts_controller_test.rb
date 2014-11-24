@@ -3,6 +3,8 @@ require 'test_helper'
 class BroadcastsControllerTest < ActionController::TestCase
   setup do
     @broadcast = broadcasts(:one)
+    @user_details = user_details(:one)
+    session[:user_id] = @user_details.id
   end
 
   test "should get index" do
@@ -18,7 +20,7 @@ class BroadcastsControllerTest < ActionController::TestCase
 
   test "should create broadcast" do
     assert_difference('Broadcast.count') do
-      post :create, broadcast: { content: @broadcast.content, user_id: @broadcast.user_id }
+      post :create, broadcast: { content: @broadcast.content, user_id: @broadcast.user_id }, feeds: ["twitter"]
     end
 
     assert_redirected_to broadcast_path(assigns(:broadcast))
@@ -29,15 +31,17 @@ class BroadcastsControllerTest < ActionController::TestCase
     assert_response :success
   end
 
-  test "should get edit" do
-    get :edit, id: @broadcast
-    assert_response :success
-  end
+  # CG - Removed following advice from CWL as broadcasts should not be able to be updated or edited. 
 
-  test "should update broadcast" do
-    patch :update, id: @broadcast, broadcast: { content: @broadcast.content, user_id: @broadcast.user_id }
-    assert_redirected_to broadcast_path(assigns(:broadcast))
-  end
+  # test "should get edit" do
+  #   get :edit, id: @broadcast
+  #   assert_response :success
+  # end
+  #
+  # test "should update broadcast" do
+  #   patch :update, id: @broadcast, broadcast: { content: @broadcast.content, user_id: @broadcast.user_id }
+  #   assert_redirected_to broadcast_path(assigns(:broadcast))
+  # end
 
   test "should destroy broadcast" do
     assert_difference('Broadcast.count', -1) do

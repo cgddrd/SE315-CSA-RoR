@@ -8,6 +8,9 @@ class UsersController < ApplicationController
   before_action :admin_required, only: [:index, :search, :destroy, :create]
   before_action :set_current_page, except: [:index]
   before_action :set_user, only: [:show, :edit, :update, :destroy]
+    
+  # CG - Prevent login required for new. 
+  skip_before_action :login_required, only:  [:new]
 
   rescue_from ActiveRecord::RecordNotFound, with: :show_record_not_found
 
@@ -144,7 +147,10 @@ class UsersController < ApplicationController
         if @service.update_attributes(user_params, params[:image_file])
           format.html { redirect_to(user_url(@user, page: @current_page),
                                     notice: I18n.t('users.account-created')) }
+          
+          # CG - Here we return only a header (no body) in the response, and as such respond with a HTTP 204 - No Content (success)
           format.json { head :no_content }
+            
         else
           format.html { render action: 'edit' }
           format.json { render json: @user.errors, status: :unprocessable_entity }
