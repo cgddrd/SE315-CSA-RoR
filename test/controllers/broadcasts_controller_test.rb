@@ -23,7 +23,10 @@ class BroadcastsControllerTest < ActionController::TestCase
       post :create, broadcast: { content: @broadcast.content, user_id: @broadcast.user_id }, feeds: ["twitter"]
     end
 
-    assert_redirected_to broadcast_path(assigns(:broadcast))
+    # assert_redirected_to broadcast_path(assigns(:broadcast))
+
+    # CG - Updated to use root broadcasts path with pagination parameter instead of individual broadcast path. (Taken from user_controller_test.rb)
+    assert_redirected_to "#{broadcasts_path(assigns(:user))}?page=1"
   end
 
   test "should show broadcast" do
@@ -31,7 +34,7 @@ class BroadcastsControllerTest < ActionController::TestCase
     assert_response :success
   end
 
-  # CG - Removed following advice from CWL as broadcasts should not be able to be updated or edited. 
+  # CG - Removed following advice from CWL as broadcasts should not be able to be updated or edited.
 
   # test "should get edit" do
   #   get :edit, id: @broadcast
