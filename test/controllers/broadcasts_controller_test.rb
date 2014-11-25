@@ -20,7 +20,10 @@ class BroadcastsControllerTest < ActionController::TestCase
 
   test "should create broadcast" do
     assert_difference('Broadcast.count') do
+
+      # CG - Update test to pass in the feeds that we want to use (e.g. twitter).
       post :create, broadcast: { content: @broadcast.content, user_id: @broadcast.user_id }, feeds: ["twitter"]
+      
     end
 
     # assert_redirected_to broadcast_path(assigns(:broadcast))
