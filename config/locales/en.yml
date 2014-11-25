@@ -20,7 +20,7 @@ en:
   update:                   "Update"
   please-wait:              "Please wait"
   create:                   "Create"
-  
+
   layout:
     title:                  "CS Alumni - Version 0.1"
 
@@ -66,10 +66,4 @@ en:
     unable-message:         "Unable to broadcast to one or more feeds"
     saved-but-message:      "Broadcast was successfully saved, but problems broadcasting to one or more feeds"
     saved-message:          "Broadcast was successfully saved and broadcast to all feeds"
-
-    
-
- 
-    
-    
-  
+    broadcast-no-exists:    "Broadcast no longer exists"

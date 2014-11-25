@@ -248,7 +248,7 @@ class UsersController < ApplicationController
                     notice: I18n.t('users.account-no-exists'))
       }
       format.json {
-        render json: "{#{I18n.t('users.account-no-exists')}}",
+        render json: {:errors => ["#{I18n.t('broadcasts.broadcast-no-exists')}"]},
 
                # CG - Changed from 422 to 401
                status: :not_found

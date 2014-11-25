@@ -2,11 +2,12 @@ class BroadcastsController < ApplicationController
 
   before_action :set_broadcast, only: [:show, :destroy]
   before_action :set_current_page, except: [:index]
-  rescue_from ActiveRecord::RecordNotFound, with: :squelch_record_not_found
 
   # This is an admin specific controller, so enforce access by admin only
   # This is a very simple form of authorisation
   before_action :admin_required
+
+  rescue_from ActiveRecord::RecordNotFound, with: :show_record_not_found
 
   # Default number of entries per page
   PER_PAGE = 12
@@ -66,10 +67,10 @@ class BroadcastsController < ApplicationController
           # @broadcast.errors[:base] << ("#{I18n.t('broadcasts.unable-message')}: #{results}")
 
           # CG - Extract all of the feed errors from the 'results' array so we can create a collection of 'error' JSON objects.
-          results.each do |p|
+          results.each do |error|
 
             # CG - 'errors.add' is a Rails internal function to add a new error to the collection of all errors for the 'broadcast' object.
-            @broadcast.errors.add(:feed_errors, p);
+            @broadcast.errors.add(:feed_errors, error);
 
           end
 
@@ -137,10 +138,19 @@ class BroadcastsController < ApplicationController
     params.require(:broadcast).permit(:content)
   end
 
-  def squelch_record_not_found(exception)
-    respond_to do |format|
-      format.html { redirect_to(broadcasts_url(page: current_page)) }
-      format.json { head :no_content }
+  # CG - Add ability to return HTML 404 code if broadcast cannot be found (e.g delete a broadcast)
+  def show_record_not_found(exception)
+
+      respond_to do |format|
+        format.html {
+          redirect_to(broadcasts_url(page: current_page))
+        }
+        format.json {
+          render json: {:errors => ["#{I18n.t('broadcasts.broadcast-no-exists')}"]},
+
+          status: :not_found
+        }
+
     end
   end
 end
