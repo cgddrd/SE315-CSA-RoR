@@ -20,16 +20,14 @@ class BroadcastsControllerTest < ActionController::TestCase
 
   test "should create broadcast" do
     assert_difference('Broadcast.count') do
-
-      # CG - Update test to pass in the feeds that we want to use (e.g. twitter).
-      post :create, broadcast: { content: @broadcast.content, user_id: @broadcast.user_id }, feeds: ["twitter"]
-      
+      post :create, broadcast: { content: @broadcast.content }, feeds: ["xml"]
     end
 
-    # assert_redirected_to broadcast_path(assigns(:broadcast))
+    #assert_redirected_to broadcast_path(assigns(:broadcast))
 
-    # CG - Updated to use root broadcasts path with pagination parameter instead of individual broadcast path. (Taken from user_controller_test.rb)
-    assert_redirected_to "#{broadcasts_path(assigns(:user))}?page=1"
+    # CG - Updated to use root broadcasts path with pagination parameter instead of individual broadcast path. (Taken from user_controller_test)
+    assert_redirected_to "#{broadcasts_path}?page=1"
+
   end
 
   test "should show broadcast" do

@@ -1,8 +1,10 @@
+# CG - Add simple test coverage gem 'simplecov'. - Must be at the top of the file in order to track controllers as well.
+require 'simplecov'
+SimpleCov.start 'rails'
+
 ENV["RAILS_ENV"] ||= "test"
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
-require 'rails/all'
-require 'base64'
 
 class ActiveSupport::TestCase
   ActiveRecord::Migration.check_pending!
