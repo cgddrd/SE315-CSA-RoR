@@ -18,7 +18,7 @@ class BroadcastService
         when "email"
           result.concat(via_email(broadcast, emails))
         when "facebook"
-        when "RSS"
+        when "RSS"          
         when "atom"
       end
     end
