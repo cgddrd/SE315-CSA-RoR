@@ -2,8 +2,8 @@ class ApplicationController < ActionController::Base
 
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
-    
-  # CG - Switched from :exception to :null_session after receiving ActionController::InvalidAuthenticityToken exception while using API. 
+
+  # CG - Switched from :exception to :null_session after receiving ActionController::InvalidAuthenticityToken exception while using API.
   # CG - CSRF is still active however - don't panic too much!
   protect_from_forgery with: :null_session
 
@@ -36,7 +36,7 @@ class ApplicationController < ActionController::Base
       format.html do
         session[:original_uri] = request.fullpath
         flash[:notice] = 'Please log in'
-        redirect_to new_ _path
+        redirect_to new_session_path
       end
       #(Some browsers, notably IE6, send Accept: */* and trigger
       # the 'format.any' block incorrectly.
@@ -70,7 +70,23 @@ class ApplicationController < ActionController::Base
   # Accesses the current user from either the session or via a db lookup as
   # part of basic authentication.
   def current_user
-    login_from_session || login_from_basic_auth
+
+    respond_to do |format|
+
+      # CG - If we are accessing via HTML, use session to authenticate.
+      format.html {
+          login_from_session
+      }
+
+      # CG - Any other MIME types, we want to ALWAYS check for basic authentication. - i.e. Don't allow access via existing session.
+      format.all {
+        login_from_basic_auth
+      }
+
+    end
+
+
+    # login_from_session || login_from_basic_auth
   end
 
   # Store the given user id in the session. We cheat a bit and do this even
@@ -83,6 +99,8 @@ class ApplicationController < ActionController::Base
 
   # Some very lightweight authorisation checking
   def is_admin?
+
+    # CG - Check if current_user is in use, if so check if he is admin, otherwise return false.
     current_user ? current_user.login == "admin" : false
   end
 
@@ -96,12 +114,11 @@ class ApplicationController < ActionController::Base
         flash[:error] = 'You must be admin to do that'
         redirect_to root_url
       }
-      
-      # CG - Add 401 error code if user other than admin attempts to perform 'index', 'search' or 'destroy' controller methods. 
+
+      # CG - Add 401 error code if user other than admin attempts to perform 'index', 'search' or 'destroy' controller methods.
       format.json {
-                render json: "{You must be admin to do that}",
-                       status: :unauthorized
-              }
+        render json: {:errors => ["You must be admin to do that"]}, :status => :unauthorized
+      }
     end
   end
 

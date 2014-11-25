@@ -1,7 +1,9 @@
 class BroadcastsController < ApplicationController
+
   before_action :set_broadcast, only: [:show, :destroy]
   before_action :set_current_page, except: [:index]
   rescue_from ActiveRecord::RecordNotFound, with: :squelch_record_not_found
+
   # This is an admin specific controller, so enforce access by admin only
   # This is a very simple form of authorisation
   before_action :admin_required
@@ -44,18 +46,35 @@ class BroadcastsController < ApplicationController
     #current_user.user.broadcasts << @broadcast
 
     no_errors = false
+
     respond_to do |format|
+
       if @broadcast.save
 
         # Only after saving do we try and do the real broadcast. Could have been
         # done using an observer, but I wanted this to be more explicit
 
-        results = BroadcastService.broadcast(@broadcast, params[:feeds])
+        results = BroadcastService.broadcast(@broadcast, params[:feeds], params[:alumni_email])
+
+
         if results.length > 0
+
           # Something went wrong when trying to broadcast to one or more of the
           # feeds.
-          @broadcast.errors[:base] << ("#{I18n.t('broadcasts.unable-message')}: #{results.inspect}")
+
+          # CG - Old code.
+          # @broadcast.errors[:base] << ("#{I18n.t('broadcasts.unable-message')}: #{results}")
+
+          # CG - Extract all of the feed errors from the 'results' array so we can create a collection of 'error' JSON objects.
+          results.each do |p|
+
+            # CG - 'errors.add' is a Rails internal function to add a new error to the collection of all errors for the 'broadcast' object.
+            @broadcast.errors.add(:feed_errors, p);
+
+          end
+
           flash[:error] = I18n.t('broadcasts.saved-but-message')
+
         else
           flash[:notice] = I18n.t('broadcasts.saved-message')
           no_errors = true
@@ -65,13 +84,27 @@ class BroadcastsController < ApplicationController
           format.json { render json: @broadcast, status: :created, location: @broadcast }
         else
           format.html { render :new }
-          format.xml {
+
+          #format.xml {
+
+          # CG - Fix this to return errors for JSON format rather than XML format. (ActionController::UnknownFormat)
+          format.json {
+
             # Either say it partly worked but send back the errors or else send
             # back complete failure indicator (couldn't even save)
             if results
-              render json: @broadcast.errors, status: :created, location: @broadcast
+
+              # render json: @broadcast.errors, status: :created, location: @broadcast
+
+              # CG - Update formatting of feed error messages so we can iterate through them in the client app.
+              render json: {:errors => @broadcast.errors}, :status => :created
+
             else
-              render json: @broadcast.errors, status: :unprocessable_entity
+
+              # render json: @broadcast.errors, status: :unprocessable_entity
+
+              # CG - Update formatting of feed error messages so we can iterate through them in the client app.
+              render json: {:errors => @broadcast.errors}, :status => :unprocessable_entity
             end
           }
         end

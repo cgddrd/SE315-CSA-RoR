@@ -4,7 +4,18 @@ class UsersControllerTest < ActionController::TestCase
   setup do
     @user = users(:one)
     @user_details = user_details(:one)
-    session[:user_id] = @user_details.id
+    session[:user_id] = @user_details
+  end
+
+  def teardown
+    # as we are re-initializing @post before every test
+    # setting it to nil here is not essential but I hope
+    # you understand how you can use the teardown method
+
+    @user = nil
+    @user_details = nil
+    session[:user_id] = nil
+
   end
 
   test "should get index" do

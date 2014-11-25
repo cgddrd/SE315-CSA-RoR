@@ -8,7 +8,7 @@ class BroadcastService
   # polymorphic calls. This is left to the reader as an exercise, but ideally
   # you would want to make this a singleton rather than use class scope methods. The
   # error handling mechanism is also a bit clunky and non-user friendly.
-  def self.broadcast(broadcast, feeds)
+  def self.broadcast(broadcast, feeds, emails)
     puts "feeds: #{feeds.inspect}"
     result = []
     feeds.each do |feed, value|
@@ -16,7 +16,7 @@ class BroadcastService
         when "twitter"
           result.concat(via_twitter(broadcast))
         when "email"
-          result.concat(via_email(broadcast, feeds[:alumni_email]))
+          result.concat(via_email(broadcast, emails))
         when "facebook"
         when "RSS"
         when "atom"
@@ -34,7 +34,7 @@ class BroadcastService
     users.each do |user|
       NewsBroadcast.send_news(user, broadcast, email_list).deliver
     end
-    add_feed broadcast, 'email'
+      add_feed broadcast, 'email'
     return []
   rescue => e
     return [feed: email_list, code: 500, message: e.message]
@@ -53,10 +53,10 @@ class BroadcastService
           # Now wire up with the correct feed
           add_feed broadcast, 'twitter'
         else # Something went wrong
-          result = [feed: 'twitter', code: response.code, message: response.message]
+          result = [feed: "twitter", code: response.code, message: response.message]
       end
     rescue => e
-      result = [feed: 'twitter', code: 500, message: e.message]
+      result = [feed: "twitter", code: 500, message: e.message]
     end
     result
   end

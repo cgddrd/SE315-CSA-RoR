@@ -14,7 +14,7 @@ Csa::Application.configure do
   config.action_controller.perform_caching = false
 
   # Don't care if the mailer can't send.
-  config.action_mailer.raise_delivery_errors = false
+  config.action_mailer.raise_delivery_errors = true
 
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
@@ -23,29 +23,29 @@ Csa::Application.configure do
   config.active_record.migration_error = :page_load
 
   # Actually don't really want to send
-  config.action_mailer.delivery_method = :test
+  # config.action_mailer.delivery_method = :test
 
-  #config.action_mailer.perform_deliveries = true
-  #config.action_mailer.delivery_method = :smtp
+  config.action_mailer.perform_deliveries = true
+  config.action_mailer.delivery_method = :smtp
 
   # These settings work for staff over exchange outside
   # of network
-  #config.action_mailer.smtp_settings = {
-  #address: "smtphost.aber.ac.uk",
-  #port: 587,
-  #user_name: 'cwl',
-  #password: '******', # Put password here, although rather dangerous
-  #authentication: :login,
-  #enable_starttls_auto: true
-  #}
-
-  # This should work within the network
   config.action_mailer.smtp_settings = {
-      address: "smtphost.aber.ac.uk",
-      port: 25
+    address: "smtp.office365.com",
+    port: 587,
+    user_name: 'clg11@aber.ac.uk',
+    password: '*******', # Put password here, although rather dangerous
+    authentication: :login,
+    enable_starttls_auto: true
   }
 
-  ADMIN_EMAIL="admin@host.ac.com" # Change to your email
+  # # This should work within the network
+  # config.action_mailer.smtp_settings = {
+  #     address: "smtphost.aber.ac.uk",
+  #     port: 25
+  # }
+
+  ADMIN_EMAIL="clg11@aber.ac.uk" # Change to your email
 
   # Debug mode disables concatenation and preprocessing of assets.
   # This option may cause significant delays in view rendering with a large
