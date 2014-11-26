@@ -262,7 +262,7 @@ class UsersController < ApplicationController
 # CG - '.require()' tells Rails that the 'params' hash-table MUST include a 'user' key. It must exist.
 
   def user_params
-    params.require(:feeds).require(:user).permit(:surname,
+    params.require(:user).permit(:surname,
                                  :firstname,
                                  :phone,
                                  :grad_year,

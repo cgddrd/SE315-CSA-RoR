@@ -15,9 +15,26 @@ class BroadcastsController < ApplicationController
   # GET /broadcasts
   # GET /broadcasts.json
   def index
-    @broadcasts = Broadcast.paginate(page: params[:page],
-                                     per_page: params[:per_page])
-                           .order('created_at DESC')
+
+    # CG - Depending on the incoming format type (html, json or rss) render out the broadcasts accordingly. Uses one of three view templates: 'index.html.erb', 'index.json.builder' or 'index.rss.builder'
+
+    # CG - If we wanted to, we could restrict to these three formats only, but Rails will choose the correct view template automatically based on the fincoming format type.
+    # respond_to do |format|
+    # format.any(:html, :json, :rss) { }
+
+
+    # CG - If we have specified 'per_page' URL parameter, then we should paginate results, otherwise return all results.
+    if (!params.has_key?(:per_page)) || (!params[:per_page]) || params[:per_page] == "all"
+
+      @broadcasts = Broadcast.all
+
+    else
+
+      @broadcasts = Broadcast.paginate(page: params[:page], per_page: params[:per_page]).order('created_at DESC')
+
+    end
+
+    # end
   end
 
   # GET /broadcasts/1
@@ -55,7 +72,7 @@ class BroadcastsController < ApplicationController
         # Only after saving do we try and do the real broadcast. Could have been
         # done using an observer, but I wanted this to be more explicit
 
-        results = BroadcastService.broadcast(@broadcast, params[:feeds], params[:alumni_email])
+        results = BroadcastService.broadcast(@broadcast, params[:feeds])
 
 
         if results.length > 0

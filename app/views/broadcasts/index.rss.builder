@@ -1,3 +1,5 @@
+# CG - XML Template for RSS feeds. Links to 'broadcasts_controller.rb' via '@broadcasts' object.
+
 xml.instruct! :xml, :version => "1.0"
 xml.rss :version => "2.0" do
   xml.channel do
