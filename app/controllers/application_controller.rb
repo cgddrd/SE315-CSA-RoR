@@ -102,6 +102,7 @@ class ApplicationController < ActionController::Base
 
     # CG - Check if current_user is in use, if so check if he is admin, otherwise return false.
     current_user ? current_user.login == "admin" : false
+    
   end
 
   def admin_required

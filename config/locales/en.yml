@@ -58,7 +58,7 @@ en:
     search-instruction:     "Enter search phrase, or leave blank to retrieve all records"
     sign-up:                "Sign up as a new user"
     not-your-account:       "This is not your account, access denied"
-    account-no-exists:      "Account no longer exists"
+    account-no-exists:      "User does not exist"
     account-created:        "Account was successfully created"
     thanks:                 "Thanks for signing up!  We're sending you an email with your activation code"
 
@@ -66,4 +66,4 @@ en:
     unable-message:         "Unable to broadcast to one or more feeds"
     saved-but-message:      "Broadcast was successfully saved, but problems broadcasting to one or more feeds"
     saved-message:          "Broadcast was successfully saved and broadcast to all feeds"
-    broadcast-no-exists:    "Broadcast no longer exists"
+    broadcast-no-exists:    "Broadcast does not exist"

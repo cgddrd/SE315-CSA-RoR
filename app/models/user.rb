@@ -6,18 +6,18 @@ class User < ActiveRecord::Base
   validates_numericality_of :grad_year,
                             greater_than_or_equal_to: 1970,
                             less_than_or_equal_to: Time.now.year.to_i
-    
+
   validates_format_of :email,
                       with: /\A([\w\.\-\+]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i,
                       message: 'Bad email address format'
-    
+
   validates_uniqueness_of :email
 
   has_one :image, dependent: :destroy
   has_one :user_detail, dependent: :destroy
   has_many :broadcasts
   accepts_nested_attributes_for :user_detail
-
+  
   def firstname=(value)
     write_attribute :firstname, (value ? value.humanize : nil)
   end

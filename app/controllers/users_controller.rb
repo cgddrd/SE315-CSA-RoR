@@ -14,6 +14,8 @@ class UsersController < ApplicationController
 
   rescue_from ActiveRecord::RecordNotFound, with: :show_record_not_found
 
+
+
   def search
     # Use will_paginate's :conditions and :joins to search across both the
     # users and user_details tables. search_fields private method will add a field
@@ -54,8 +56,9 @@ class UsersController < ApplicationController
         format.json {
 
             # CG - Get all the users from the model/DB.
-            @users = User.all
-            render json: @users
+             @users = User.all
+            #  render :partial => "users/show.json.erb"
+            #  render json: @users
         }
     end
   end
@@ -248,7 +251,7 @@ class UsersController < ApplicationController
                     notice: I18n.t('users.account-no-exists'))
       }
       format.json {
-        render json: {:errors => ["#{I18n.t('broadcasts.broadcast-no-exists')}"]},
+        render json: {:errors => ["#{I18n.t('users.account-no-exists')}"]},
 
                # CG - Changed from 422 to 401
                status: :not_found
