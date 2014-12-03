@@ -19,22 +19,28 @@ class BroadcastsController < ApplicationController
     # CG - Depending on the incoming format type (html, json or rss) render out the broadcasts accordingly. Uses one of three view templates: 'index.html.erb', 'index.json.builder' or 'index.rss.builder'
 
     # CG - If we wanted to, we could restrict to these three formats only, but Rails will choose the correct view template automatically based on the fincoming format type.
-    # respond_to do |format|
-    # format.any(:html, :json, :rss) { }
+    respond_to do |format|
 
+      format.html { @broadcasts = Broadcast.paginate(page: params[:page], per_page: params[:per_page]).order('created_at DESC') }
 
-    # CG - If we have specified 'per_page' URL parameter, then we should paginate results, otherwise return all results.
-    if (!params.has_key?(:per_page)) || (!params[:per_page]) || params[:per_page] == "all"
+      # CG - If we are dealing with JSON/RSS responses, allow us to decide if we want to paginate the results, and if so, how mnay per page, and the current page.
+      format.any(:json, :rss) {
 
-      @broadcasts = Broadcast.all
+        # CG - If we have specified 'per_page' URL parameter, then we should paginate results, otherwise return all results.
+        if (!params.has_key?(:per_page)) || (!params[:per_page]) || params[:per_page] == "all"
 
-    else
+          @broadcasts = Broadcast.all
 
-      @broadcasts = Broadcast.paginate(page: params[:page], per_page: params[:per_page]).order('created_at DESC')
+        else
+
+          @broadcasts = Broadcast.paginate(page: params[:page], per_page: params[:per_page]).order('created_at DESC')
+
+        end
+
+      }
 
     end
 
-    # end
   end
 
   # GET /broadcasts/1

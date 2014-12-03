@@ -42,7 +42,9 @@ class ApplicationController < ActionController::Base
       # the 'format.any' block incorrectly.
       # See http://bit.ly/ie6_borken or http://bit.ly/ie6_borken2
       # for a workaround.)
-      format.any(:json, :xml) do
+
+      # CG - For either JSON, XML, or RSS we need to request HTTP authentication for access.
+      format.any(:json, :xml, :rss) do
         request_http_basic_authentication 'Web Password'
       end
     end
@@ -78,9 +80,27 @@ class ApplicationController < ActionController::Base
           login_from_session
       }
 
+      # CG - For most cases with JSON, we want to always ask for HTTP Authentication, except when we are using the AJAX 'auto-complete search' function within the HTML page.
+      format.json {
+
+        # CG - Check if the current request has come via 'search' action of the 'users' controller. If so, allow login via session for AJAX/JSON responses, otherwise force HTTP authentication for JSON responses.
+        if action_name == "search" && controller_name == "user"
+
+          login_from_session
+
+        else
+
+          login_from_basic_auth
+
+        end
+
+      }
+
       # CG - Any other MIME types, we want to ALWAYS check for basic authentication. - i.e. Don't allow access via existing session.
       format.all {
+
         login_from_basic_auth
+
       }
 
     end
@@ -102,7 +122,7 @@ class ApplicationController < ActionController::Base
 
     # CG - Check if current_user is in use, if so check if he is admin, otherwise return false.
     current_user ? current_user.login == "admin" : false
-    
+
   end
 
   def admin_required

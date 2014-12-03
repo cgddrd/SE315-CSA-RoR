@@ -34,9 +34,19 @@ class UsersController < ApplicationController
 
         render 'index'
       }
+      
       # Deal with incoming Ajax request for JSON data for autocomplete search field
       format.json {
+
+        # CG - Perform the search using the serach parameters passed via the URL
         @users = User.where(User.search_conditions(params[:q], search_fields(User))).joins(:user_detail).order('surname, firstname')
+
+        # CG - If we are seraching via the client application (and not the AJAX auto-complete form) then we need to use a different view template to return the required user information.
+        if (params.has_key?(:client))
+
+          render :template => "users/clientsearch"
+
+        end
       }
     end
   end
@@ -57,8 +67,6 @@ class UsersController < ApplicationController
 
             # CG - Get all the users from the model/DB.
              @users = User.all
-            #  render :partial => "users/show.json.erb"
-            #  render json: @users
         }
     end
   end

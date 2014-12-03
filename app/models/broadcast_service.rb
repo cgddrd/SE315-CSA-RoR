@@ -19,6 +19,8 @@ class BroadcastService
           result.concat(via_email(broadcast, feeds[:alumni_email]))
         when "facebook"
         when "RSS"
+          # CG - Add support for RSS feeds.
+          result.concat(via_rss(broadcast))
         when "atom"
       end
     end
@@ -26,6 +28,24 @@ class BroadcastService
   end
 
   private
+
+  # CG - Add support for RSS feeds.
+  def self.via_rss(broadcast)
+
+    begin
+
+      add_feed broadcast, 'RSS'
+
+      # CG - Return all clear if there are no errors.
+      return []
+
+    rescue => e
+
+      return [feed: "rss", code: 500, message: e.message]
+
+    end
+    
+  end
 
   def self.via_email(broadcast, email_list)
     # Iterate across all users sending an email to each.
