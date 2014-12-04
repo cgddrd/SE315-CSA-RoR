@@ -34,7 +34,7 @@ class UsersController < ApplicationController
 
         render 'index'
       }
-      
+
       # Deal with incoming Ajax request for JSON data for autocomplete search field
       format.json {
 
