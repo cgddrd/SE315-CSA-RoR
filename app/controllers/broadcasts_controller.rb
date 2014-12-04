@@ -109,10 +109,12 @@ class BroadcastsController < ApplicationController
           format.rss {
 
             @broadcasts = Broadcast.all
-            render :template => 'broadcasts/index.rss.builder', :layout => false
+            render :template => 'broadcasts/index.rss.builder', :layout => false, :status => :created
 
           }
+
         else
+
           format.html { render :new }
 
           #format.xml {
@@ -172,7 +174,7 @@ class BroadcastsController < ApplicationController
 
       respond_to do |format|
         format.html {
-          redirect_to(broadcasts_url(page: current_page))
+          redirect_to(broadcasts_url)
         }
         format.json {
           render json: {:errors => ["#{I18n.t('broadcasts.broadcast-no-exists')}"]},

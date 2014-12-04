@@ -1,7 +1,21 @@
 # CG - Make sure the SALT and CRYPTED_PASSWORD are within quotes so that no weird rounding/changing of values occurs before going into the database.
-one:
-  id: 980190962
+userone:
+  id: 1
   login: 'admin'
   salt: '702843989510600.3630543657847439'
   crypted_password: '1c8fc34fc6f5cdcf1792b27667147aaec31d06958b517b49bfbf44d1f75576e2'
-  user_id: 980190962
+  user_id: 1
+
+usertwo:
+  id: 2
+  login: 'clg11'
+  salt: '702390174697400.20415891951652987'
+  crypted_password: '9256a8538a6087642aae178ea98c0c6b4fa9e07f730794609db88664aab48a6a'
+  user_id: 2
+
+userthree:
+  id: 3
+  login: 'fake1'
+  salt: 702390174697400.20415891951652987
+  crypted_password: 9256a8538a6087642aae178ea98c0c6b4fa9e07f730794609db88664aab48a6a
+  user_id: 3

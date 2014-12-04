@@ -17,7 +17,7 @@ class User < ActiveRecord::Base
   has_one :user_detail, dependent: :destroy
   has_many :broadcasts
   accepts_nested_attributes_for :user_detail
-  
+
   def firstname=(value)
     write_attribute :firstname, (value ? value.humanize : nil)
   end
@@ -81,7 +81,7 @@ class User < ActiveRecord::Base
       binds["word#{count}".to_sym] = "%#{word.to_s.downcase}%"
       count += 1
     end
-    puts "search conditions: #{[or_frags.join(" AND "), binds].to_s}"
+    # puts "search conditions: #{[or_frags.join(" AND "), binds].to_s}"
     [or_frags.join(" AND "), binds]
   end
 end

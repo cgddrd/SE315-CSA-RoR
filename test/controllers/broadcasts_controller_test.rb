@@ -3,7 +3,11 @@ require 'test_helper'
 class BroadcastsControllerTest < ActionController::TestCase
   setup do
     @broadcast = broadcasts(:one)
-    @user_details = user_details(:one)
+    @user_details = user_details(:userone)
+    @feed = feeds(:feedone)
+
+    # @broadcast_feed = broadcasts_feeds(:one)
+
     session[:user_id] = @user_details.id
   end
 
@@ -11,6 +15,83 @@ class BroadcastsControllerTest < ActionController::TestCase
     get :index
     assert_response :success
     assert_not_nil assigns(:broadcasts)
+
+    # CG - We should have Twitter and RSS feeds appearing for the first broadcast (based on the sample data within 'broadcasts_feeds.yml')
+    assert_select "td", {:text => "Twitter, Rss"}
+
+
+  end
+
+  test "should get index json all broadcasts" do
+
+    @request.headers['Authorization'] = "Basic #{Base64.encode64("admin:taliesin")}"
+    @request.headers['Accept'] = Mime::JSON
+    @request.headers['Content-Type'] = Mime::JSON.to_s
+
+    get :index
+
+    parsedBroadcasts = json_response
+
+    assert_equal 2, parsedBroadcasts.count
+
+    assert_response :success
+
+    assert_not_nil assigns(:broadcasts)
+
+  end
+
+  test "should get index rss all broadcasts" do
+
+    @request.headers['Authorization'] = "Basic #{Base64.encode64("admin:taliesin")}"
+    @request.headers['Accept'] = Mime::RSS
+    @request.headers['Content-Type'] = Mime::RSS.to_s
+
+    get :index
+
+    assert_response :success
+
+    assert_not_nil assigns(:broadcasts)
+
+  end
+
+  test "should get index json paginated page1" do
+
+    @request.headers['Authorization'] = "Basic #{Base64.encode64("admin:taliesin")}"
+    @request.headers['Accept'] = Mime::JSON
+    @request.headers['Content-Type'] = Mime::JSON.to_s
+
+    get :index, per_page: 1, page: 1
+
+    parsedBroadcasts = json_response
+
+    assert_equal 1, parsedBroadcasts.count
+
+    assert_response :success
+
+    assert_equal "MyText1", parsedBroadcasts[0]["content"]
+
+    assert_not_nil assigns(:broadcasts)
+
+  end
+
+  test "should get index json paginated page2" do
+
+    @request.headers['Authorization'] = "Basic #{Base64.encode64("admin:taliesin")}"
+    @request.headers['Accept'] = Mime::JSON
+    @request.headers['Content-Type'] = Mime::JSON.to_s
+
+    get :index, per_page: 1, page: 2
+
+    parsedBroadcasts = json_response
+
+    assert_equal 1, parsedBroadcasts.count
+
+    assert_response :success
+
+    assert_equal "MyText2", parsedBroadcasts[0]["content"]
+
+    assert_not_nil assigns(:broadcasts)
+
   end
 
   test "should get new" do
@@ -19,14 +100,101 @@ class BroadcastsControllerTest < ActionController::TestCase
   end
 
   test "should create broadcast" do
+
     assert_difference('Broadcast.count') do
       post :create, broadcast: { content: @broadcast.content }, feeds: {xml: 1}
     end
 
-    #assert_redirected_to broadcast_path(assigns(:broadcast))
-
     # CG - Updated to use root broadcasts path with pagination parameter instead of individual broadcast path. (Taken from user_controller_test)
     assert_redirected_to "#{broadcasts_path}?page=1"
+
+  end
+
+  test "should create broadcast email json" do
+
+    @request.headers['Authorization'] = "Basic #{Base64.encode64("admin:taliesin")}"
+    @request.headers['Accept'] = Mime::JSON
+    @request.headers['Content-Type'] = Mime::JSON.to_s
+
+    assert_difference('Broadcast.count') do
+      post :create, broadcast: { content: @broadcast.content }, feeds: {email: 1}
+    end
+
+    puts @response.body
+
+  end
+
+  test "should create broadcast rss json" do
+
+    @request.headers['Authorization'] = "Basic #{Base64.encode64("admin:taliesin")}"
+    @request.headers['Accept'] = Mime::JSON
+    @request.headers['Content-Type'] = Mime::JSON.to_s
+
+    assert_difference('Broadcast.count') do
+      post :create, broadcast: { content: @broadcast.content }, feeds: {RSS: 1}
+    end
+
+    puts @response.body
+
+    parsedBroadcasts = json_response
+
+    assert_response :success
+
+    assert_equal "MyText1", parsedBroadcasts["content"]
+
+  end
+
+  test "should create broadcast twitter multiple post error" do
+
+    @request.headers['Authorization'] = "Basic #{Base64.encode64("admin:taliesin")}"
+    @request.headers['Accept'] = Mime::JSON
+    @request.headers['Content-Type'] = Mime::JSON.to_s
+
+    assert_difference('Broadcast.count') do
+      post :create, broadcast: { content: @broadcast.content }, feeds: {xml: 1, twitter: 1}
+    end
+
+    assert_response :created
+
+    post :create, broadcast: { content: @broadcast.content }, feeds: {xml: 1, twitter: 1}
+
+    assert_response :created
+
+    parsedError = json_response["errors"]["feed_errors"]
+
+    assert_equal 1, parsedError.count
+
+    assert_equal "twitter", parsedError[0]["feed"]
+    assert_equal "403", parsedError[0]["code"]
+    assert_equal "Forbidden", parsedError[0]["message"]
+
+    # CG - Updated to use root broadcasts path with pagination parameter instead of individual broadcast path. (Taken from user_controller_test)
+    # assert_redirected_to "#{broadcasts_path}?page=1"
+
+  end
+
+  test "should create broadcast rss" do
+
+    @request.headers['Authorization'] = "Basic #{Base64.encode64("admin:taliesin")}"
+    @request.headers['Accept'] = Mime::RSS
+    @request.headers['Content-Type'] = Mime::RSS.to_s
+
+    assert_difference('Broadcast.count') do
+      post :create, broadcast: { content: @broadcast.content }, feeds: {rss: 1}
+    end
+
+    assert_response :created
+
+    assert_select "channel" do
+      assert_select "item", 3
+    end
+
+    assert_select "channel" do
+      assert_select "item" do
+        assert_select "title", {:text => "MyText2"}
+        assert_select "title", {:text => "MyText1"}
+      end
+    end
 
   end
 
@@ -34,6 +202,33 @@ class BroadcastsControllerTest < ActionController::TestCase
     get :show, id: @broadcast
     assert_response :success
   end
+
+  test "should find no broadcast show broadcast" do
+
+    get :show, id: 1000
+
+    assert_redirected_to "#{broadcasts_url}"
+
+  end
+
+  test "should find no broadcast show broadcast json" do
+
+    @request.headers['Authorization'] = "Basic #{Base64.encode64("admin:taliesin")}"
+    @request.headers['Accept'] = Mime::JSON
+    @request.headers['Content-Type'] = Mime::JSON.to_s
+
+    get :show, id: 1000
+
+    assert_response :not_found
+
+    parsedError = json_response["errors"]
+
+    assert_equal 1, parsedError.count
+
+    assert_equal "Broadcast does not exist", parsedError[0]
+
+  end
+
 
   # CG - Removed following advice from CWL as broadcasts should not be able to be updated or edited.
 

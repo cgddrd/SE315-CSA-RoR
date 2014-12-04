@@ -15,6 +15,29 @@ Csa::Application.configure do
   #CG - Added this to fix the issues surrounding 'use_ssl' undefined in the tests.
   config.use_ssl = false
 
+  config.action_mailer.perform_deliveries = true
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.raise_delivery_errors = true
+
+  # These settings work for staff over exchange outside
+  # of network
+  config.action_mailer.smtp_settings = {
+    address: "smtp.office365.com",
+    port: 587,
+    user_name: 'clg11@aber.ac.uk',
+    password: '****', # Put password here, although rather dangerous
+    authentication: :login,
+    enable_starttls_auto: true
+  }
+
+  # # This should work within the network
+  # config.action_mailer.smtp_settings = {
+  #     address: "smtphost.aber.ac.uk",
+  #     port: 25
+  # }
+
+  ADMIN_EMAIL="clg11@aber.ac.uk" # Change to your email
+
   # Configure static asset server for tests with Cache-Control for performance.
   config.serve_static_assets  = true
   config.static_cache_control = "public, max-age=3600"

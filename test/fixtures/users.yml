@@ -1,9 +1,28 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
 
-one:
-  surname: Loftus
-  firstname: Chris
+userone:
+  id: 1
+  surname: Account
+  firstname: Administrator
   phone: 622422
   grad_year: 1985
   jobs: false
-  email: cwl@aber.ac.uk
+  email: admin@aber.ac.uk
+
+usertwo:
+  id: 2
+  surname: Goddard
+  firstname: Connor
+  phone: 891514
+  grad_year: 2013
+  jobs: true
+  email: clg11@aber.ac.uk
+
+userthree:
+  id: 3
+  surname: Faker
+  firstname: Fake
+  phone: 891514
+  grad_year: 2013
+  jobs: true
+  email: fake@aber.ac.uk
