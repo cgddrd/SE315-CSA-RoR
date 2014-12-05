@@ -44,7 +44,7 @@ class ApplicationController < ActionController::Base
       # for a workaround.)
 
       # CG - For either JSON, XML, or RSS we need to request HTTP authentication for access.
-      format.any(:json, :xml, :rss) do
+      format.any(:json, :xml, :rss, :atom) do
         request_http_basic_authentication 'Web Password'
       end
     end

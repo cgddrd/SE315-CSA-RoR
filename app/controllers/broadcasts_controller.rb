@@ -24,7 +24,7 @@ class BroadcastsController < ApplicationController
       format.html { @broadcasts = Broadcast.paginate(page: params[:page], per_page: params[:per_page]).order('created_at DESC') }
 
       # CG - If we are dealing with JSON/RSS responses, allow us to decide if we want to paginate the results, and if so, how mnay per page, and the current page.
-      format.any(:json, :rss) {
+      format.any(:json, :rss, :atom) {
 
         # CG - If we have specified 'per_page' URL parameter, then we should paginate results, otherwise return all results.
         if (!params.has_key?(:per_page)) || (!params[:per_page]) || params[:per_page] == "all"
