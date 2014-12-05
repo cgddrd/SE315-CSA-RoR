@@ -22,12 +22,32 @@ class BroadcastService
           # CG - Add support for RSS feeds.
           result.concat(via_rss(broadcast))
         when "atom"
+          # CG - Add support for ATOM feeds.
+          result.concat(via_atom(broadcast))
       end
     end
     result
   end
 
   private
+
+  # CG - Add support for ATOM feeds.
+  def self.via_atom(broadcast)
+
+    begin
+
+      add_feed broadcast, 'atom'
+
+      # CG - Return all clear if there are no errors.
+      return []
+
+    rescue => e
+
+      return [feed: "atom", code: 500, message: e.message]
+
+    end
+
+  end
 
   # CG - Add support for RSS feeds.
   def self.via_rss(broadcast)
@@ -44,7 +64,7 @@ class BroadcastService
       return [feed: "rss", code: 500, message: e.message]
 
     end
-    
+
   end
 
   def self.via_email(broadcast, email_list)

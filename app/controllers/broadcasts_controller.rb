@@ -113,11 +113,16 @@ class BroadcastsController < ApplicationController
 
           }
 
+          format.atom {
+
+            @broadcasts = Broadcast.all
+            render :template => 'broadcasts/index.atom.builder', :layout => false, :status => :created
+
+          }
+
         else
 
           format.html { render :new }
-
-          #format.xml {
 
           # CG - Fix this to return errors for JSON format rather than XML format. (ActionController::UnknownFormat)
           format.json {
@@ -139,6 +144,7 @@ class BroadcastsController < ApplicationController
               render json: {:errors => @broadcast.errors}, :status => :unprocessable_entity
             end
           }
+
         end
       end
     end

@@ -283,8 +283,6 @@ class BroadcastsControllerTest < ActionController::TestCase
       post :create, broadcast: { content: @broadcast.content }, feeds: {email: 1}
     end
 
-    puts @response.body
-
   end
 
   test "should create broadcast rss json" do
@@ -295,6 +293,24 @@ class BroadcastsControllerTest < ActionController::TestCase
 
     assert_difference('Broadcast.count') do
       post :create, broadcast: { content: @broadcast.content }, feeds: {RSS: 1}
+    end
+
+    parsedBroadcasts = json_response
+
+    assert_response :success
+
+    assert_equal "MyText1", parsedBroadcasts["content"]
+
+  end
+
+  test "should create broadcast atom json" do
+
+    @request.headers['Authorization'] = "Basic #{Base64.encode64("admin:taliesin")}"
+    @request.headers['Accept'] = Mime::JSON
+    @request.headers['Content-Type'] = Mime::JSON.to_s
+
+    assert_difference('Broadcast.count') do
+      post :create, broadcast: { content: @broadcast.content }, feeds: {atom: 1}
     end
 
     puts @response.body
@@ -357,6 +373,29 @@ class BroadcastsControllerTest < ActionController::TestCase
         assert_select "title", {:text => "MyText2"}
         assert_select "title", {:text => "MyText1"}
       end
+    end
+
+  end
+
+  test "should create broadcast atom" do
+
+    @request.headers['Authorization'] = "Basic #{Base64.encode64("admin:taliesin")}"
+    @request.headers['Accept'] = "application/atom+xml"
+    @request.headers['Content-Type'] = "application/atom+xml"
+
+    assert_difference('Broadcast.count') do
+      post :create, broadcast: { content: @broadcast.content }, feeds: {atom: 1}
+    end
+
+    assert_response :created
+
+    assert_select "feed", {:xmlns => "http://www.w3.org/2005/Atom"}
+
+    assert_select "entry", 3
+
+    assert_select "entry" do
+      assert_select "content", {:text => "MyText1"}
+      assert_select "content", {:text => "MyText2"}
     end
 
   end
