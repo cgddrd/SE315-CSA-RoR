@@ -106,20 +106,6 @@ class BroadcastsController < ApplicationController
         if no_errors
           format.html { redirect_to(broadcasts_url(page: @current_page)) }
           format.json { render json: @broadcast, status: :created, location: @broadcast }
-          format.rss {
-
-            @broadcasts = Broadcast.all
-            render :template => 'broadcasts/index.rss.builder', :layout => false, :status => :created
-
-          }
-
-          format.atom {
-
-            @broadcasts = Broadcast.all
-            render :template => 'broadcasts/index.atom.builder', :layout => false, :status => :created
-
-          }
-
         else
 
           format.html { render :new }

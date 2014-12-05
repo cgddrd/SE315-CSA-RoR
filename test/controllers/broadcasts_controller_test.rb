@@ -313,8 +313,6 @@ class BroadcastsControllerTest < ActionController::TestCase
       post :create, broadcast: { content: @broadcast.content }, feeds: {atom: 1}
     end
 
-    puts @response.body
-
     parsedBroadcasts = json_response
 
     assert_response :success
@@ -354,49 +352,59 @@ class BroadcastsControllerTest < ActionController::TestCase
 
   test "should create broadcast rss" do
 
-    @request.headers['Authorization'] = "Basic #{Base64.encode64("admin:taliesin")}"
-    @request.headers['Accept'] = Mime::RSS
-    @request.headers['Content-Type'] = Mime::RSS.to_s
+    # CG - Should get exception if you try to create a new broadcast using an 'RSS' request.
+    assert_raises(ActionController::UnknownFormat) {
 
-    assert_difference('Broadcast.count') do
-      post :create, broadcast: { content: @broadcast.content }, feeds: {rss: 1}
-    end
+      @request.headers['Authorization'] = "Basic #{Base64.encode64("admin:taliesin")}"
+      @request.headers['Accept'] = Mime::RSS
+      @request.headers['Content-Type'] = Mime::RSS.to_s
 
-    assert_response :created
-
-    assert_select "channel" do
-      assert_select "item", 3
-    end
-
-    assert_select "channel" do
-      assert_select "item" do
-        assert_select "title", {:text => "MyText2"}
-        assert_select "title", {:text => "MyText1"}
+      assert_difference('Broadcast.count') do
+        post :create, broadcast: { content: @broadcast.content }, feeds: {rss: 1}
       end
-    end
+
+      assert_response :created
+
+      assert_select "channel" do
+        assert_select "item", 3
+      end
+
+      assert_select "channel" do
+        assert_select "item" do
+          assert_select "title", {:text => "MyText2"}
+          assert_select "title", {:text => "MyText1"}
+        end
+      end
+
+    }
 
   end
 
   test "should create broadcast atom" do
 
-    @request.headers['Authorization'] = "Basic #{Base64.encode64("admin:taliesin")}"
-    @request.headers['Accept'] = "application/atom+xml"
-    @request.headers['Content-Type'] = "application/atom+xml"
+    # CG - Should get exception if you try to create a new broadcast using an 'ATOM' request.
+    assert_raises(ActionController::UnknownFormat) {
 
-    assert_difference('Broadcast.count') do
-      post :create, broadcast: { content: @broadcast.content }, feeds: {atom: 1}
-    end
+      @request.headers['Authorization'] = "Basic #{Base64.encode64("admin:taliesin")}"
+      @request.headers['Accept'] = "application/atom+xml"
+      @request.headers['Content-Type'] = "application/atom+xml"
 
-    assert_response :created
+      assert_difference('Broadcast.count') do
+        post :create, broadcast: { content: @broadcast.content }, feeds: {atom: 1}
+      end
 
-    assert_select "feed", {:xmlns => "http://www.w3.org/2005/Atom"}
+      assert_response :created
 
-    assert_select "entry", 3
+      assert_select "feed", {:xmlns => "http://www.w3.org/2005/Atom"}
 
-    assert_select "entry" do
-      assert_select "content", {:text => "MyText1"}
-      assert_select "content", {:text => "MyText2"}
-    end
+      assert_select "entry", 3
+
+      assert_select "entry" do
+        assert_select "content", {:text => "MyText1"}
+        assert_select "content", {:text => "MyText2"}
+      end
+
+  }
 
   end
 
