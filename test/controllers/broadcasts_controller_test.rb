@@ -40,6 +40,20 @@ class BroadcastsControllerTest < ActionController::TestCase
 
   end
 
+  test "should reject user get index json all broadcasts" do
+
+    @request.headers['Authorization'] = "Basic #{Base64.encode64("fake:user")}"
+    @request.headers['Accept'] = Mime::JSON
+    @request.headers['Content-Type'] = Mime::JSON.to_s
+
+    get :index
+
+    assert_response :unauthorized
+
+    assert_equal "HTTP Basic: Access denied.\n", @response.body
+
+  end
+
   test "should get index rss all broadcasts" do
 
     @request.headers['Authorization'] = "Basic #{Base64.encode64("admin:taliesin")}"
@@ -51,6 +65,70 @@ class BroadcastsControllerTest < ActionController::TestCase
     assert_response :success
 
     assert_not_nil assigns(:broadcasts)
+
+    assert_select "rss", {:version => "2.0"}
+
+    assert_select "channel", 1
+
+    assert_select "item", 2
+
+    assert_select "item" do
+      assert_select "title", {:text => "MyText1"}
+      assert_select "title", {:text => "MyText2"}
+      assert_select "description", {:text => "MyText1"}
+      assert_select "description", {:text => "MyText2"}
+    end
+
+  end
+
+  test "should reject user get index rss all broadcasts" do
+
+    @request.headers['Authorization'] = "Basic #{Base64.encode64("fake:user")}"
+    @request.headers['Accept'] = Mime::RSS
+    @request.headers['Content-Type'] = Mime::RSS.to_s
+
+    get :index
+
+    assert_response :unauthorized
+
+    assert_equal "HTTP Basic: Access denied.\n", @response.body
+
+  end
+
+  test "should get index atom all broadcasts" do
+
+    @request.headers['Authorization'] = "Basic #{Base64.encode64("admin:taliesin")}"
+    @request.headers['Accept'] = "application/atom+xml"
+    @request.headers['Content-Type'] = "application/atom+xml"
+
+    get :index
+
+    assert_response :success
+
+    assert_not_nil assigns(:broadcasts)
+
+    assert_select "feed", {:xmlns => "http://www.w3.org/2005/Atom"}
+
+    assert_select "entry", 2
+
+    assert_select "entry" do
+      assert_select "content", {:text => "MyText1"}
+      assert_select "content", {:text => "MyText2"}
+    end
+
+  end
+
+  test "should reject user get index atom all broadcasts" do
+
+    @request.headers['Authorization'] = "Basic #{Base64.encode64("fake:user")}"
+    @request.headers['Accept'] = "application/atom+xml"
+    @request.headers['Content-Type'] = "application/atom+xml"
+
+    get :index
+
+    assert_response :unauthorized
+
+    assert_equal "HTTP Basic: Access denied.\n", @response.body
 
   end
 
@@ -91,6 +169,91 @@ class BroadcastsControllerTest < ActionController::TestCase
     assert_equal "MyText2", parsedBroadcasts[0]["content"]
 
     assert_not_nil assigns(:broadcasts)
+
+  end
+
+  test "should get index rss paginated page1" do
+
+    @request.headers['Authorization'] = "Basic #{Base64.encode64("admin:taliesin")}"
+    @request.headers['Accept'] = Mime::RSS
+    @request.headers['Content-Type'] = Mime::RSS.to_s
+
+    get :index, per_page: 1, page: 1
+
+    assert_response :success
+
+    assert_not_nil assigns(:broadcasts)
+
+    assert_select "rss", {:version => "2.0"}
+
+    assert_select "channel", 1
+
+    assert_select "item", 1
+
+    assert_select "title", {:text => "MyText1"}
+    assert_select "description", {:text => "MyText1"}
+
+
+  end
+
+  test "should get index rss paginated page2" do
+
+    @request.headers['Authorization'] = "Basic #{Base64.encode64("admin:taliesin")}"
+    @request.headers['Accept'] = Mime::RSS
+    @request.headers['Content-Type'] = Mime::RSS.to_s
+
+    get :index, per_page: 1, page: 2
+
+    assert_response :success
+
+    assert_select "rss", {:version => "2.0"}
+
+    assert_select "channel", 1
+
+    assert_select "item", 1
+
+
+    assert_select "title", {:text => "MyText2"}
+    assert_select "description", {:text => "MyText2"}
+
+
+  end
+
+  test "should get index atom paginated page1" do
+
+    @request.headers['Authorization'] = "Basic #{Base64.encode64("admin:taliesin")}"
+    @request.headers['Accept'] = "application/atom+xml"
+    @request.headers['Content-Type'] = "application/atom+xml"
+
+    get :index, per_page: 1, page: 1
+
+    assert_response :success
+
+    assert_not_nil assigns(:broadcasts)
+
+    assert_select "feed", {:xmlns => "http://www.w3.org/2005/Atom"}
+
+    assert_select "entry", 1
+
+    assert_select "content", {:text => "MyText1"}
+
+  end
+
+  test "should get index atom paginated page2" do
+
+    @request.headers['Authorization'] = "Basic #{Base64.encode64("admin:taliesin")}"
+    @request.headers['Accept'] = "application/atom+xml"
+    @request.headers['Content-Type'] = "application/atom+xml"
+
+    get :index, per_page: 1, page: 2
+
+    assert_response :success
+
+    assert_select "feed", {:xmlns => "http://www.w3.org/2005/Atom"}
+
+    assert_select "entry", 1
+
+    assert_select "content", {:text => "MyText2"}
 
   end
 
