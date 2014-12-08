@@ -1,3 +1,5 @@
+# CG - New functional test class created for the 'LoginController' Rails controller.
+
 require 'test_helper'
 
 class LoginControllerTest < ActionController::TestCase

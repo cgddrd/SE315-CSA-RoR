@@ -1,4 +1,5 @@
 # CG - XML Template for ATOM feeds. Links to 'broadcasts_controller.rb' via '@broadcasts' object.
+# CG - Code modified from original source: http://api.rubyonrails.org/classes/ActionView/Helpers/AtomFeedHelper.html
 
 atom_feed do |feed|
   feed.title("CSA_Broadcasts_Atom")

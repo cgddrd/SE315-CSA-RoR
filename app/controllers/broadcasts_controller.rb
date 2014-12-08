@@ -161,7 +161,7 @@ class BroadcastsController < ApplicationController
     params.require(:broadcast).permit(:content)
   end
 
-  # CG - Add ability to return HTML 404 code if broadcast cannot be found (e.g delete a broadcast)
+  # CG - Add ability to return HTML 404 code if broadcast cannot be found (e.g after deleting a broadcast)
   def show_record_not_found(exception)
 
       respond_to do |format|

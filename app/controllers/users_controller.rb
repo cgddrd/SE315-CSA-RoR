@@ -9,9 +9,6 @@ class UsersController < ApplicationController
   before_action :set_current_page, except: [:index]
   before_action :set_user, only: [:show, :edit, :update, :destroy]
 
-  # CG - Prevent login required for new.
-  #skip_before_action :login_required, only: [:new]
-
   rescue_from ActiveRecord::RecordNotFound, with: :show_record_not_found
 
 
@@ -41,7 +38,7 @@ class UsersController < ApplicationController
         # CG - Perform the search using the serach parameters passed via the URL
         @users = User.where(User.search_conditions(params[:q], search_fields(User))).joins(:user_detail).order('surname, firstname')
 
-        # CG - If we are seraching via the client application (and not the AJAX auto-complete form) then we need to use a different view template to return the required user information.
+        # CG - If we are searching via the client application (and not the AJAX auto-complete form) then we need to use a different view template to return the required user information.
         if (params.has_key?(:client))
 
           render :template => "users/clientsearch"
@@ -137,8 +134,6 @@ class UsersController < ApplicationController
       else
         format.html { render action: 'new' }
 
-        #format.json { render json: @user.errors, status: :unprocessable_entity }
-
         # CG - Changed from 422 to 400 Bad Request - Validation error.
         format.json { render json: {:errors => @user.errors.full_messages}, :status => :bad_request }
       end
@@ -217,7 +212,7 @@ class UsersController < ApplicationController
     end
   end
 
-    #CG - Add 401-Unauthorized status.
+    #CG - Add HTTP 401-Unauthorized response for invalid users.
     def indicate_unauthorised_request(message)
         respond_to do |format|
               format.html {
@@ -230,27 +225,6 @@ class UsersController < ApplicationController
         end
     end
 
-# CG - Maybe we should return a 401 instead of 404 if the user logged in isn't the user trying to access (even if it doesn't exist)
-# def show_record_not_found(exception)
-#
-#    if current_user.id == params[:id] || is_admin?
-#
-#        respond_to do |format|
-#          format.html {
-#            redirect_to(users_url(page: @current_page),
-#                        notice: I18n.t('users.account-no-exists'))
-#          }
-#          format.json {
-#            render json: "{#{I18n.t('users.account-no-exists')}}",
-#
-#                   # CG - Changed from 422 to 401
-#                   status: :not_found
-#          }
-#        end
-#      else
-#          indicate_unauthorised_request I18n.t('users.not-your-account')
-#      end
-#  end
 
   def show_record_not_found(exception)
     respond_to do |format|
@@ -261,7 +235,7 @@ class UsersController < ApplicationController
       format.json {
         render json: {:errors => ["#{I18n.t('users.account-no-exists')}"]},
 
-               # CG - Changed from 422 to 401
+               # CG - Changed from 422 to 404 as we are not able to find the record.
                status: :not_found
       }
     end

@@ -19,6 +19,7 @@ class ActiveSupport::TestCase
 
   # Add more helper methods to be used by all tests here...
 
+  # CG - Added 'helper' function to parse JSON responses returned by the controllers. 
   def json_response
     ActiveSupport::JSON.decode @response.body
   end
